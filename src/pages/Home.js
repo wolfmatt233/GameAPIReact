@@ -1,8 +1,9 @@
-import { Box, Button, Container, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import React from "react";
 import hero from "../assets/home-hero.jpg";
+import SignUpModal from "./extras/SignUpModal";
 
-export default function Home() {
+export default function Home(props) {
   return (
     <div>
       <Box sx={homeHero}>
@@ -10,7 +11,17 @@ export default function Home() {
           Review and log the games you are playing! Check out what others think,
           too!
         </Typography>
-        <Button variant="contained" color="error" sx={heroBtn}>Create an account today!</Button>
+        <Button
+          variant="contained"
+          color="error"
+          sx={heroBtn}
+          onClick={() => {
+            props.open();
+            props.modal(<SignUpModal displayName={props.displayName} close={props.close} />);
+          }}
+        >
+          Create an account today!
+        </Button>
       </Box>
     </div>
   );
@@ -20,7 +31,7 @@ const homeHero = {
   backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${hero})`,
   backgroundRepeat: "no-repeat",
   backgroundSize: "cover",
-  minHeight: "calc(100vh - 128px)",
+  minHeight: "calc(100vh - 158px)",
   width: "100%",
   borderRadius: "10px",
   position: "relative",
@@ -44,5 +55,5 @@ const heroBtn = {
   left: "50%",
   transform: "translate(-50%, 100%)",
   textTransform: "none",
-  fontSize: "17px"
-}
+  fontSize: "17px",
+};

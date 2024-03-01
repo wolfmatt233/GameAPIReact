@@ -1,7 +1,4 @@
 import { useState, useEffect } from "react";
-import Home from "./Home";
-import Browse from "./Browse";
-import User from "./User";
 import {
   AppBar,
   Box,
@@ -16,64 +13,103 @@ import {
   Paper,
 } from "@mui/material";
 import { auth } from "../credentials";
-import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import SearchIcon from "@mui/icons-material/Search";
 import VideogameAssetIcon from "@mui/icons-material/VideogameAssetTwoTone";
+import Home from "./Home";
+import Browse from "./Browse";
+import User from "./User";
 import DetailView from "./DetailView";
+import LoginModal from "./extras/LoginModal";
+import SignUpModal from "./extras/SignUpModal";
 
 export default function Main() {
   const [authStateButtons, setAuthStateButtons] = useState(); //nav buttons (logged in or not)
+  const [displayName, setDisplayName] = useState("");
+  const [status, setStatus] = useState("");
+
+  //----MODAL----\\
+  const [modalBox, setModalBox] = useState("");
   const [toggleModal, setToggleModal] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [modalFeedback, setModalFeedback] = useState("");
+  const closeModal = () => setToggleModal(false);
+  const openModal = () => setToggleModal(true);
+  const modals = [
+    <LoginModal
+      displayName={setDisplayName}
+      close={closeModal}
+      status={setStatus}
+    />,
+    <SignUpModal
+      displayName={setDisplayName}
+      close={closeModal}
+      status={setStatus}
+    />,
+  ];
+
+  //----ROUTING----\\
   const [gameId, setGameId] = useState();
-  const detailPage = (id) => setGameId(id);
   const pages = [
-    <Home />,
-    <Browse details={detailPage} />,
+    <Home
+      open={openModal}
+      setModal={setModalBox}
+      close={closeModal}
+      displayName={setDisplayName}
+    />,
+    <Browse setId={setGameId} />,
     <User />,
     <DetailView id={gameId} />,
   ];
   const [curPage, setCurPage] = useState(pages[0]);
-
-  const closeModal = () => setToggleModal(false);
-  const openModal = () => setToggleModal(true);
   const homePage = () => setCurPage(pages[0]);
   const browsePage = () => setCurPage(pages[1]);
   const userPage = () => setCurPage(pages[2]);
 
   useEffect(() => {
+    setTimeout(() => {
+      setDisplayName(auth.currentUser.displayName)
+    }, 2000);
+  }, []);
+
+  //Changes UI if user state is changed (logged in/out)
+  useEffect(() => {
+    if (status === "signedIn") {
+      setAuthStateButtons(loggedInButtons);
+      setDisplayName(auth.currentUser.displayName);
+    } else if (status === "signedOut") {
+      setAuthStateButtons(loggedOutButtons);
+    }
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setAuthStateButtons(loggedInButtons);
+        setDisplayName(auth.currentUser.displayName);
       } else {
         setAuthStateButtons(loggedOutButtons);
       }
     });
-  }, []);
+  }, [status]);
 
+  //sets the current page if the game id changes
   useEffect(() => {
-    setCurPage(pages[3]);
+    if (gameId == null) {
+      return;
+    } else {
+      setCurPage(pages[3]);
+    }
   }, [gameId]);
 
-  const login = () => {
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        setModalFeedback("");
-      })
-      .catch((error) => {
-        let code = error.code.split("/")[1].replace("-", " ");
-        setModalFeedback(`Error: ${code}`);
-      });
-  };
+  useEffect(() => {
+    //this resets the game id to allow the user to return to the previous item
+    //detail routing relies on the game id to change and if it does not the page will not change
+    if (curPage.type.name != "DetailView") {
+      setGameId(null);
+    }
+  }, [curPage]);
 
   const logout = () => {
-    signOut(auth);
+    signOut(auth).then(() => {
+      setStatus("signedOut");
+      setDisplayName("");
+    });
   };
 
   const loggedOutButtons = (
@@ -89,10 +125,24 @@ export default function Main() {
       <Button sx={navBtn} onClick={browsePage}>
         Browse
       </Button>
-      <Button sx={navBtn} onClick={openModal}>
+      <Button
+        sx={navBtn}
+        onClick={() => {
+          openModal();
+          setModalBox(modals[0]);
+        }}
+      >
         Login
       </Button>
-      <Button sx={navBtn}>Sign Up</Button>
+      <Button
+        sx={navBtn}
+        onClick={() => {
+          openModal();
+          setModalBox(modals[1]);
+        }}
+      >
+        Sign Up
+      </Button>
     </Container>
   );
 
@@ -110,7 +160,7 @@ export default function Main() {
         Browse
       </Button>
       <Button sx={navBtn} onClick={userPage}>
-        Logged In
+        {displayName}
       </Button>
       <Button sx={navBtn} onClick={logout}>
         Log Out
@@ -160,20 +210,7 @@ export default function Main() {
       </Box>
 
       <Modal open={toggleModal} onClose={closeModal}>
-        <Box sx={modalStyle}>
-          <Input
-            placeholder="Email"
-            onChange={(e) => setEmail(e.currentTarget.value)}
-          />
-          <Input
-            placeholder="Password"
-            onChange={(e) => setPassword(e.currentTarget.value)}
-          />
-          <Button onClick={login}>Sign In</Button>
-          <Typography sx={{ color: "red", textAlign: "center" }}>
-            {modalFeedback}
-          </Typography>
-        </Box>
+        <div>{modalBox}</div>
       </Modal>
     </div>
   );
@@ -193,6 +230,7 @@ const navbarStyle = {
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
+  margin: "15px 0",
 };
 
 const navSearchContainer = {
@@ -234,18 +272,8 @@ const navBtn = {
 };
 
 const app = {
-  minHeight: "calc(100vh - 128px)",
-};
-
-const modalStyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 500,
-  bgcolor: "#fff",
-  display: "flex",
-  flexDirection: "column",
-  padding: "10px",
+  minHeight: "calc(100vh - 158px)",
+  backgroundColor: "#555a68",
   borderRadius: "10px",
+  overflow: "hidden",
 };
