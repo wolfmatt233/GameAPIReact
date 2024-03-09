@@ -20,13 +20,12 @@ import Home from "./Home";
 import Browse from "./Browse";
 import User from "./User";
 import DetailView from "./DetailView";
-import LoginModal from "./extras/LoginModal";
-import SignUpModal from "./extras/SignUpModal";
+import LoginModal from "./components/modals/LoginModal";
+import SignUpModal from "./components/modals/SignUpModal";
 
 export default function Main() {
   const [authStateButtons, setAuthStateButtons] = useState(); //nav buttons (logged in or not)
-  const [displayName, setDisplayName] = useState("");
-  const [status, setStatus] = useState("");
+  const [displayName, setDisplayName] = useState("Username");
 
   //----MODAL----\\
   const [modalBox, setModalBox] = useState("");
@@ -34,16 +33,8 @@ export default function Main() {
   const closeModal = () => setToggleModal(false);
   const openModal = () => setToggleModal(true);
   const modals = [
-    <LoginModal
-      displayName={setDisplayName}
-      close={closeModal}
-      status={setStatus}
-    />,
-    <SignUpModal
-      displayName={setDisplayName}
-      close={closeModal}
-      status={setStatus}
-    />,
+    <LoginModal displayName={setDisplayName} close={closeModal} />,
+    <SignUpModal displayName={setDisplayName} close={closeModal} />,
   ];
 
   //----ROUTING----\\
@@ -64,29 +55,20 @@ export default function Main() {
   const browsePage = () => setCurPage(pages[1]);
   const userPage = () => setCurPage(pages[2]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setDisplayName(auth.currentUser.displayName)
-    }, 2000);
-  }, []);
-
   //Changes UI if user state is changed (logged in/out)
   useEffect(() => {
-    if (status === "signedIn") {
-      setAuthStateButtons(loggedInButtons);
-      setDisplayName(auth.currentUser.displayName);
-    } else if (status === "signedOut") {
-      setAuthStateButtons(loggedOutButtons);
-    }
+    console.log(displayName);
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setAuthStateButtons(loggedInButtons);
-        setDisplayName(auth.currentUser.displayName);
+        setDisplayName(user.displayName);
+        console.log(displayName);
       } else {
         setAuthStateButtons(loggedOutButtons);
       }
     });
-  }, [status]);
+    console.log(displayName);
+  }, []);
 
   //sets the current page if the game id changes
   useEffect(() => {
@@ -107,7 +89,6 @@ export default function Main() {
 
   const logout = () => {
     signOut(auth).then(() => {
-      setStatus("signedOut");
       setDisplayName("");
     });
   };

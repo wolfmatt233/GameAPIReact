@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { auth, db } from "../../credentials";
+import { auth, db } from "../../../credentials";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
 import { Box, Typography, InputBase, ButtonBase } from "@mui/material";
@@ -25,6 +25,7 @@ export default function SignUpModal(props) {
           topfive: [],
           toplay: [],
           uid: user.uid,
+          username: username,
         };
 
         updateProfile(user, {
@@ -33,7 +34,6 @@ export default function SignUpModal(props) {
 
         createUserDoc(user, userObj);
 
-        props.status("signedIn");
         setModalFeedback("");
         props.close();
       })

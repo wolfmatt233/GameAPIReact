@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { auth } from "../../credentials";
+import { auth } from "../../../credentials";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Box, Typography, InputBase, ButtonBase } from "@mui/material";
 
@@ -11,7 +11,6 @@ export default function LoginModal(props) {
   const login = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        props.status("signedIn")
         props.displayName(userCredential.user.displayName);
         setModalFeedback("");
         props.close();

@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
 import React from "react";
 import hero from "../assets/home-hero.jpg";
-import SignUpModal from "./extras/SignUpModal";
+import SignUpModal from "./components/modals/SignUpModal";
 
 export default function Home(props) {
   return (
@@ -17,7 +17,12 @@ export default function Home(props) {
           sx={heroBtn}
           onClick={() => {
             props.open();
-            props.modal(<SignUpModal displayName={props.displayName} close={props.close} />);
+            props.modal(
+              <SignUpModal
+                displayName={props.displayName}
+                close={props.close}
+              />
+            );
           }}
         >
           Create an account today!
