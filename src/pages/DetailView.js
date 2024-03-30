@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
 import { Box, Link, Typography } from "@mui/material";
-import { apiKey } from "../credentials";
+import { apiKey, auth } from "../credentials";
 import parse from "html-react-parser";
 import DetailViewButtons from "./components/details/DetailViewButtons";
 import ReviewDisplay from "./components/details/ReviewDisplay";
+import ReviewButtons from "./components/details/ReviewButtons";
 
 export default function DetailView(props) {
-  const [gameId, setGameId] = useState(props.id);
+  // setModal={setModalBox} closeModal={closeModal}
+  const setModal = props.setModal;
+  const closeModal = props.closeModal;
+  const openModal = props.openModal;
+  const gameId = props.id;
   const [apiReturn, setApiReturn] = useState({});
   const [genres, setGenres] = useState([]);
   const [tags, setTags] = useState([]);
@@ -23,7 +28,6 @@ export default function DetailView(props) {
   );
 
   useEffect(() => {
-    setGameId(props.id);
     setGameUrl(gameUrl);
 
     if (rating == null) {
@@ -135,7 +139,21 @@ export default function DetailView(props) {
             src={`./assets/esrb_${rating.slug}.png`}
           />
 
-          <DetailViewButtons gameId={gameId} />
+          {auth.currentUser === null ? (
+            <div></div>
+          ) : (
+            <DetailViewButtons gameId={gameId} />
+          )}
+          {auth.currentUser === null ? (
+            <div></div>
+          ) : (
+            <ReviewButtons
+              gameId={gameId}
+              setModal={setModal}
+              closeModal={closeModal}
+              openModal={openModal}
+            />
+          )}
         </Box>
         <Box sx={detailRight}>
           <Box sx={detailBar}>
@@ -157,7 +175,7 @@ export default function DetailView(props) {
           </Box>
           <Box sx={articleBox}>
             <Box sx={devContainer}>
-              <Box sx={{mr: "20px"}}>
+              <Box sx={{ mr: "20px" }}>
                 <Typography sx={articleDevPub}>Publisher(s)</Typography>
                 {publishers.map((publisher, idx) => (
                   <Typography key={idx} sx={listItem}>

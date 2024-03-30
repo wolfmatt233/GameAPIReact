@@ -17,33 +17,50 @@ export default function DetailViewButtons(props) {
   const [playedArray, setPlayedArray] = useState([]);
   const [wantArray, setWantArray] = useState([]);
 
-  //runs on component mount
   useEffect(() => {
     checkArrays();
   }, []);
 
-  //runs on mount and when favArray is changed
   useEffect(() => {
+    let favorited = false;
     favArray.forEach((game) => {
-      game == gameId ? setToggleFav(removeFavBtn) : setToggleFav(addFavBtn);
+      if (game == gameId) {
+        favorited = true;
+        setToggleFav(removeFavBtn);
+      }
     });
-    favArray.length === 0 && setToggleFav(addFavBtn);
+
+    if (favorited == false) {
+      setToggleFav(addFavBtn);
+    }
   }, [favArray]);
 
   useEffect(() => {
+    let played = false;
     playedArray.forEach((game) => {
-      game == gameId
-        ? setTogglePlayed(removePlayedBtn)
-        : setTogglePlayed(addPlayedBtn);
+      if (game == gameId) {
+        played = true;
+        setTogglePlayed(removePlayedBtn);
+      }
     });
-    playedArray.length === 0 && setTogglePlayed(addPlayedBtn);
+
+    if (played === false) {
+      setTogglePlayed(addPlayedBtn);
+    }
   }, [playedArray]);
 
   useEffect(() => {
+    let want = false;
     wantArray.forEach((game) => {
-      game == gameId ? setToggleWant(removeWantBtn) : setToggleWant(addWantBtn);
+      if (game == gameId) {
+        want = true;
+        setToggleWant(removeWantBtn);
+      }
     });
-    wantArray.length === 0 && setToggleWant(addWantBtn);
+
+    if (want === false) {
+      setToggleWant(addWantBtn);
+    }
   }, [wantArray]);
 
   const checkArrays = async () => {
@@ -64,9 +81,13 @@ export default function DetailViewButtons(props) {
 
     await updateDoc(doc(db, "GameDB", auth.currentUser.uid), {
       favorites: arrayUnion(gameId),
-    }).catch((error) => {
-      console.log(error.message);
-    });
+    })
+      .then(() => {
+        checkArrays();
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
   };
 
   const removeFromFavorites = async () => {
@@ -74,9 +95,13 @@ export default function DetailViewButtons(props) {
 
     await updateDoc(doc(db, "GameDB", auth.currentUser.uid), {
       favorites: arrayRemove(gameId),
-    }).catch((error) => {
-      console.log(error.message);
-    });
+    })
+      .then(() => {
+        checkArrays();
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
   };
 
   const addToPlayed = async () => {

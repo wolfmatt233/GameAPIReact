@@ -25,7 +25,7 @@ import SignUpModal from "./components/modals/SignUpModal";
 
 export default function Main() {
   const [authStateButtons, setAuthStateButtons] = useState(); //nav buttons (logged in or not)
-  const [displayName, setDisplayName] = useState("Username");
+  const [displayName, setDisplayName] = useState("");
 
   //----MODAL----\\
   const [modalBox, setModalBox] = useState("");
@@ -48,7 +48,7 @@ export default function Main() {
     />,
     <Browse setId={setGameId} />,
     <User />,
-    <DetailView id={gameId} />,
+    <DetailView id={gameId} setModal={setModalBox} closeModal={closeModal} openModal={openModal} />,
   ];
   const [curPage, setCurPage] = useState(pages[0]);
   const homePage = () => setCurPage(pages[0]);
@@ -57,17 +57,13 @@ export default function Main() {
 
   //Changes UI if user state is changed (logged in/out)
   useEffect(() => {
-    console.log(displayName);
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setAuthStateButtons(loggedInButtons);
-        setDisplayName(user.displayName);
-        console.log(displayName);
       } else {
         setAuthStateButtons(loggedOutButtons);
       }
     });
-    console.log(displayName);
   }, []);
 
   //sets the current page if the game id changes
@@ -141,7 +137,7 @@ export default function Main() {
         Browse
       </Button>
       <Button sx={navBtn} onClick={userPage}>
-        {displayName}
+        Account
       </Button>
       <Button sx={navBtn} onClick={logout}>
         Log Out
