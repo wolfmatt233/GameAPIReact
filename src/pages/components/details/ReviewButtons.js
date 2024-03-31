@@ -17,6 +17,7 @@ export default function ReviewButtons(props) {
   const setModal = props.setModal;
   const closeModal = props.closeModal;
   const openModal = props.openModal;
+  const getReviews = props.getReviews;
   const gameId = props.gameId.toString();
   const [reviewArray, setReviewArray] = useState([]);
 
@@ -25,7 +26,6 @@ export default function ReviewButtons(props) {
   }, []);
 
   useEffect(() => {
-    console.log(reviewArray);
     let reviewed = false;
 
     reviewArray.forEach((review) => {
@@ -62,6 +62,8 @@ export default function ReviewButtons(props) {
 
       await updateDoc(doc(db, "GameDB", auth.currentUser.uid), {
         reviews: arrayCopy,
+      }).then(() => {
+        props.getReviews();
       });
     } catch (error) {
       console.log(error.message);
@@ -80,6 +82,7 @@ export default function ReviewButtons(props) {
               closeModal={closeModal}
               setReviewArray={setReviewArray}
               reviewArray={reviewArray}
+              getReviews={getReviews}
             />
           );
         }}
@@ -101,6 +104,7 @@ export default function ReviewButtons(props) {
               closeModal={closeModal}
               setReviewArray={setReviewArray}
               reviewArray={reviewArray}
+              getReviews={getReviews}
             />
           );
         }}

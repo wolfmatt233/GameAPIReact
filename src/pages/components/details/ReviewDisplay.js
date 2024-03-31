@@ -1,47 +1,28 @@
 import { useEffect, useState } from "react";
 import { Box, Typography, ButtonBase } from "@mui/material";
-import { collection, getDocs, query } from "firebase/firestore";
-import { auth, db } from "../../../credentials";
+import { auth } from "../../../credentials";
 import StarIcon from "@mui/icons-material/Star";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 
 export default function ReviewDisplay(props) {
-  const gameId = props.gameId.toString();
+  const reviewsArr = props.reviewsArr;
+  const [totalScore, setTotalScore] = useState(0);
   const [avgScore, setAvgScore] = useState(0);
-  const [reviewsArr, setReviewsArr] = useState([]);
-  const [reviewsLength, setReviewsLength] = useState(0);
 
   useEffect(() => {
-    getReviews();
-  }, [props.gameId]);
-
-  useEffect(() => {
-    setReviewsLength(reviewsArr.length);
-
+    setTotalScore(0);
     reviewsArr.forEach((review) => {
       let score = parseFloat(review.starScore);
-      setAvgScore((prev) => prev + score);
+      setTotalScore((prev) => prev + score);
     });
-
-    setAvgScore((prev) => prev / reviewsLength);
   }, [reviewsArr]);
 
-  const getReviews = async () => {
-    try {
-      const querySnapshot = await getDocs(query(collection(db, "GameDB")));
-
-      querySnapshot.forEach((doc) => {
-        doc.data().reviews.forEach((review) => {
-          if (review.gameId === gameId) {
-            setReviewsArr((prev) => [...prev, review]);
-          }
-        });
-      });
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
+  useEffect(() => {
+    let avg = totalScore / reviewsArr.length;
+    avg = Math.round(avg * 100) / 100;
+    setAvgScore(avg);
+  }, [totalScore]);
 
   const addLike = () => {
     console.log("added");
@@ -51,56 +32,55 @@ export default function ReviewDisplay(props) {
     console.log("removed");
   };
 
+  const displayList = reviewsArr.map((review, idx) => {
+    let likeColor = "#fff";
+    let score = review.starScore.split(".");
+    let half = parseInt(score[1]);
+    let updateFunc = () => {};
+    score = parseInt(score[0]);
+    score = [...Array(score).keys()];
+
+    if (auth.currentUser !== null) {
+      review.likes.forEach((like) => {
+        if (auth.currentUser.displayName == like) {
+          updateFunc = addLike;
+          likeColor = "red";
+        } else {
+          updateFunc = removeLike;
+        }
+      });
+    }
+
+    return (
+      <Box sx={reviewBox} key={idx}>
+        <Box sx={reviewTop}>
+          <Typography sx={reviewBy}>Review by</Typography>
+          <Typography sx={reviewUser}>{review.user}</Typography>
+          <Box sx={starStyle}>
+            {score.map((num) => (
+              <StarIcon fontSize="small" key={num} />
+            ))}
+            {!isNaN(half) ? (
+              <StarHalfIcon fontSize="small" key="half-star" />
+            ) : (
+              <div></div>
+            )}
+          </Box>
+        </Box>
+        <Typography sx={reviewText}>{review.reviewText}</Typography>
+        <ButtonBase onClick={updateFunc}>
+          <FavoriteIcon fontSize="small" sx={{ mr: "3px", color: likeColor }} />
+          {review.likes.length} Likes
+        </ButtonBase>
+      </Box>
+    );
+  });
+
   return (
     <Box sx={reviewsContainer}>
       <Typography sx={reviewTitle}>Reviews</Typography>
       <Typography sx={avgTitle}>Review Avg: {avgScore}</Typography>
-      {reviewsArr.map((review, idx) => {
-        let likeColor = "#fff";
-        let score = review.starScore.split(".");
-        let half = parseInt(score[1]);
-        let updateFunc = () => {};
-        score = parseInt(score[0]);
-        score = [...Array(score).keys()];
-
-        if (auth.currentUser !== null) {
-          review.likes.forEach((like) => {
-            if (auth.currentUser.displayName == like) {
-              updateFunc = addLike;
-              likeColor = "red";
-            } else {
-              updateFunc = removeLike;
-            }
-          });
-        }
-
-        return (
-          <Box sx={reviewBox} key={idx}>
-            <Box sx={reviewTop}>
-              <Typography sx={reviewBy}>Review by</Typography>
-              <Typography sx={reviewUser}>{review.user}</Typography>
-              <Box sx={starStyle}>
-                {score.map((num) => (
-                  <StarIcon fontSize="small" key={num} />
-                ))}
-                {!isNaN(half) ? (
-                  <StarHalfIcon fontSize="small" key="half-star" />
-                ) : (
-                  <div></div>
-                )}
-              </Box>
-            </Box>
-            <Typography sx={reviewText}>{review.reviewText}</Typography>
-            <ButtonBase onClick={updateFunc}>
-              <FavoriteIcon
-                fontSize="small"
-                sx={{ mr: "3px", color: likeColor }}
-              />
-              {review.likes.length} Likes
-            </ButtonBase>
-          </Box>
-        );
-      })}
+      <Box>{displayList}</Box>
     </Box>
   );
 }

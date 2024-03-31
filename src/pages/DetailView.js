@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Box, Link, Typography } from "@mui/material";
-import { apiKey, auth } from "../credentials";
+import { apiKey, auth, db } from "../credentials";
 import parse from "html-react-parser";
 import DetailViewButtons from "./components/details/DetailViewButtons";
 import ReviewDisplay from "./components/details/ReviewDisplay";
 import ReviewButtons from "./components/details/ReviewButtons";
+import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
 
 export default function DetailView(props) {
-  // setModal={setModalBox} closeModal={closeModal}
   const setModal = props.setModal;
   const closeModal = props.closeModal;
   const openModal = props.openModal;
@@ -27,8 +27,12 @@ export default function DetailView(props) {
     `https://api.rawg.io/api/games/${gameId}?key=${apiKey}`
   );
 
+  //rerendering for review changes
+  const [reviewsArr, setReviewsArr] = useState([]);
+
   useEffect(() => {
     setGameUrl(gameUrl);
+    props.openLoading();
 
     if (rating == null) {
       setRating("pending");
@@ -57,8 +61,30 @@ export default function DetailView(props) {
         setPublishers(data.publishers);
         const parseDesc = parse(data.description);
         setDescription(parseDesc);
+        props.closeLoading();
       });
   }, [gameUrl]);
+
+  useEffect(() => {
+    getReviews();
+  }, []);
+
+  const getReviews = async () => {
+    setReviewsArr([]);
+    try {
+      const querySnapshot = await getDocs(query(collection(db, "GameDB")));
+
+      querySnapshot.forEach((doc) => {
+        doc.data().reviews.forEach((review) => {
+          if (review.gameId === gameId.toString()) {
+            setReviewsArr((prev) => [...prev, review]);
+          }
+        });
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   return (
     <Box sx={{ minHeight: "calc(100vh - 158px)" }}>
@@ -152,6 +178,7 @@ export default function DetailView(props) {
               setModal={setModal}
               closeModal={closeModal}
               openModal={openModal}
+              getReviews={getReviews}
             />
           )}
         </Box>
@@ -203,7 +230,7 @@ export default function DetailView(props) {
           </Box>
         </Box>
       </Box>
-      <ReviewDisplay gameId={gameId} />
+      <ReviewDisplay gameId={gameId} reviewsArr={reviewsArr} />
     </Box>
   );
 }

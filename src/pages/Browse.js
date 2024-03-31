@@ -31,11 +31,15 @@ export default function Browse(props) {
 
   useEffect(() => {
     const getGames = async () => {
+      props.openLoading();
+
       const result = await fetch(url);
       result.json().then((data) => {
         setGameList(data.results);
         setApiReturn(data);
       });
+
+      props.closeLoading();
     };
     getGames();
   }, [url]);

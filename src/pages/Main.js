@@ -11,6 +11,8 @@ import {
   Modal,
   Input,
   Paper,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
 import { auth } from "../credentials";
 import { onAuthStateChanged, signOut } from "firebase/auth";
@@ -30,8 +32,11 @@ export default function Main() {
   //----MODAL----\\
   const [modalBox, setModalBox] = useState("");
   const [toggleModal, setToggleModal] = useState(false);
+  const [toggleLoading, setToggleLoading] = useState(false);
   const closeModal = () => setToggleModal(false);
   const openModal = () => setToggleModal(true);
+  const closeLoading = () => setToggleLoading(false);
+  const openLoading = () => setToggleLoading(true);
   const modals = [
     <LoginModal displayName={setDisplayName} close={closeModal} />,
     <SignUpModal displayName={setDisplayName} close={closeModal} />,
@@ -46,9 +51,20 @@ export default function Main() {
       close={closeModal}
       displayName={setDisplayName}
     />,
-    <Browse setId={setGameId} />,
+    <Browse
+      setId={setGameId}
+      openLoading={openLoading}
+      closeLoading={closeLoading}
+    />,
     <User />,
-    <DetailView id={gameId} setModal={setModalBox} closeModal={closeModal} openModal={openModal} />,
+    <DetailView
+      id={gameId}
+      setModal={setModalBox}
+      closeModal={closeModal}
+      openModal={openModal}
+      openLoading={openLoading}
+      closeLoading={closeLoading}
+    />,
   ];
   const [curPage, setCurPage] = useState(pages[0]);
   const homePage = () => setCurPage(pages[0]);
@@ -189,6 +205,10 @@ export default function Main() {
       <Modal open={toggleModal} onClose={closeModal}>
         <div>{modalBox}</div>
       </Modal>
+
+      <Backdrop open={toggleLoading}>
+        <CircularProgress color="inherit" sx={{ color: "#fff" }} />
+      </Backdrop>
     </div>
   );
 }

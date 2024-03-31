@@ -8,6 +8,7 @@ export default function ReviewModal(props) {
   const close = props.closeModal;
   const setReviewArray = props.setReviewArray;
   const reviewArray = props.reviewArray;
+  const getReviews = props.getReviews;
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [modalFeedback, setModalFeedback] = useState("");
@@ -42,17 +43,22 @@ export default function ReviewModal(props) {
         setModalFeedback("Rating must be between 0.5 and 5");
         return;
       }
+      
       const arrayCopy = reviewArray.slice();
+
       arrayCopy.forEach((review) => {
         if (review.gameId == gameId) {
           review.reviewText = reviewText;
           review.starScore = rating.toString();
         }
       });
+
       setReviewArray(arrayCopy);
+
       await updateDoc(doc(db, "GameDB", user.uid), {
         reviews: reviewArray,
       }).then(() => {
+        getReviews();
         close();
       });
     } catch (error) {
@@ -84,6 +90,7 @@ export default function ReviewModal(props) {
       await updateDoc(doc(db, "GameDB", user.uid), {
         reviews: arrayCopy,
       }).then(() => {
+        getReviews();
         close();
       });
     } catch (error) {
