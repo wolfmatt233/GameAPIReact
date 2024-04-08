@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, ButtonBase } from "@mui/material";
+import { Box, ButtonBase, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import { auth, db } from "../../../credentials";
@@ -10,6 +10,11 @@ import {
   getDoc,
   updateDoc,
 } from "firebase/firestore";
+import {
+  buttonContainer,
+  addButtonStyle,
+  removeButtonStyle
+} from "./ButtonStyles";
 
 export default function DetailViewButtons(props) {
   const gameId = props.gameId.toString();
@@ -153,11 +158,11 @@ export default function DetailViewButtons(props) {
   );
 
   const removeFavBtn = (
-    <div>
+    <Tooltip title="Remove" placement="right">
       <ButtonBase sx={removeButtonStyle} onClick={removeFromFavorites}>
         Favorited <CheckIcon fontSize="small" />
       </ButtonBase>
-    </div>
+    </Tooltip>
   );
 
   const addPlayedBtn = (
@@ -169,11 +174,11 @@ export default function DetailViewButtons(props) {
   );
 
   const removePlayedBtn = (
-    <div>
+    <Tooltip title="Remove" placement="right">
       <ButtonBase sx={removeButtonStyle} onClick={removeFromPlayed}>
         Played <CheckIcon fontSize="small" />
       </ButtonBase>
-    </div>
+    </Tooltip>
   );
 
   const addWantBtn = (
@@ -185,11 +190,11 @@ export default function DetailViewButtons(props) {
   );
 
   const removeWantBtn = (
-    <div>
+    <Tooltip title="Remove" placement="right">
       <ButtonBase sx={removeButtonStyle} onClick={removeFromWant}>
         To Play <CheckIcon fontSize="small" />
       </ButtonBase>
-    </div>
+    </Tooltip>
   );
 
   const [toggleFav, setToggleFav] = useState(addFavBtn);
@@ -204,33 +209,3 @@ export default function DetailViewButtons(props) {
     </Box>
   );
 }
-
-const buttonContainer = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "flex-start",
-  mt: "10px",
-};
-
-const addButtonStyle = {
-  padding: "8px",
-  border: "1px solid #fff",
-  borderRadius: "10px",
-  mb: "10px",
-  "&:hover": {
-    backgroundColor: "green",
-    filter: "brightness(90%)",
-  },
-};
-
-const removeButtonStyle = {
-  padding: "8px",
-  border: "1px solid #fff",
-  borderRadius: "10px",
-  mb: "10px",
-  backgroundColor: "green",
-  "&:hover": {
-    backgroundColor: "red",
-    filter: "brightness(90%)",
-  },
-};

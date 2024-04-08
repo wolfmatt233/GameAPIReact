@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Box, ButtonBase, Typography, InputBase, Rating } from "@mui/material";
 import { auth, db } from "../../../credentials";
 import { doc, updateDoc } from "firebase/firestore";
+import { modalBtn, modalInput, modalStyle, ratingStyle } from "./ModalStyles";
 
 export default function ReviewModal(props) {
   const gameId = props.gameId;
@@ -43,7 +44,7 @@ export default function ReviewModal(props) {
         setModalFeedback("Rating must be between 0.5 and 5");
         return;
       }
-      
+
       const arrayCopy = reviewArray.slice();
 
       arrayCopy.forEach((review) => {
@@ -139,41 +140,3 @@ export default function ReviewModal(props) {
     </Box>
   );
 }
-
-const modalStyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 500,
-  minHeight: "40%",
-  bgcolor: "#40434e",
-  display: "flex",
-  flexDirection: "column",
-  padding: "15px 0",
-  borderRadius: "10px",
-  textAlign: "center",
-  alignItems: "center",
-  justifyContent: "space-evenly",
-};
-
-const modalInput = {
-  width: "80%",
-  border: "1px solid #fff",
-  borderRadius: "10px",
-  padding: "5px",
-  pl: "10px",
-  color: "#fff",
-};
-
-const modalBtn = {
-  width: "50%",
-  padding: "10px",
-  borderRadius: "10px",
-  color: "#fff",
-  bgcolor: "#2e7f2e",
-};
-
-const ratingStyle = {
-  m: "10px 0",
-};

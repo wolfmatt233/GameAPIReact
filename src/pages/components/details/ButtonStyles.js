@@ -2,17 +2,21 @@ export const buttonContainer = {
   display: "flex",
   flexDirection: "column",
   alignItems: "flex-start",
-  mt: "10px",
 };
 
 export const addButtonStyle = {
   padding: "8px",
   border: "1px solid #fff",
   borderRadius: "10px",
+  justifyContent: "center",
   mb: "10px",
+  width: "150px",
   "&:hover": {
     backgroundColor: "green",
     filter: "brightness(90%)",
+  },
+  svg: {
+    marginLeft: "5px",
   },
 };
 
@@ -22,9 +26,14 @@ export const editButtonStyle = {
   borderRadius: "10px",
   mb: "10px",
   backgroundColor: "green",
+  transition: "background-color 0.5s",
+  width: "150px",
   "&:hover": {
     backgroundColor: "orange",
     filter: "brightness(90%)",
+  },
+  svg: {
+    marginLeft: "5px",
   },
 };
 
@@ -34,8 +43,13 @@ export const removeButtonStyle = {
   borderRadius: "10px",
   mb: "10px",
   backgroundColor: "green",
+  transition: "background-color, 0.5s",
+  width: "150px",
   "&:hover": {
-    backgroundColor: "red",
+    backgroundColor: "#cc4b4b",
     filter: "brightness(90%)",
+  },
+  svg: {
+    marginLeft: "5px",
   },
 };

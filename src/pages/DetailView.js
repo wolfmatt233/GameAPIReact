@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Box, Link, Typography } from "@mui/material";
+import { Box, Link, Typography, ListItem } from "@mui/material";
 import { apiKey, auth, db } from "../credentials";
 import parse from "html-react-parser";
 import DetailViewButtons from "./components/details/DetailViewButtons";
 import ReviewDisplay from "./components/details/ReviewDisplay";
 import ReviewButtons from "./components/details/ReviewButtons";
-import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
+import { collection, getDocs, query } from "firebase/firestore";
+import Top5Button from "./components/details/Top5Button";
 
 export default function DetailView(props) {
   const setModal = props.setModal;
@@ -31,6 +32,7 @@ export default function DetailView(props) {
   const [reviewsArr, setReviewsArr] = useState([]);
 
   useEffect(() => {
+    getReviews();
     setGameUrl(gameUrl);
     props.openLoading();
 
@@ -65,10 +67,6 @@ export default function DetailView(props) {
       });
   }, [gameUrl]);
 
-  useEffect(() => {
-    getReviews();
-  }, []);
-
   const getReviews = async () => {
     setReviewsArr([]);
     try {
@@ -93,7 +91,7 @@ export default function DetailView(props) {
         sx={headerImage}
         alt="header"
         src={apiReturn.background_image}
-      />
+      ></Box>
       <Typography sx={headerTitle}>{apiReturn.name}</Typography>
       <Box sx={detailContainer}>
         <Box sx={detailLeft}>
@@ -107,11 +105,19 @@ export default function DetailView(props) {
           </Typography>
           <Box sx={{ mb: "10px" }}>
             {genres.map((genre, idx) => {
-              return (
-                <Typography sx={sideItem} key={idx}>
-                  {genre.name} |&nbsp;
-                </Typography>
-              );
+              if (idx == genres.length - 1) {
+                return (
+                  <Typography sx={sideItem} key={idx}>
+                    {genre.name}
+                  </Typography>
+                );
+              } else {
+                return (
+                  <Typography sx={sideItem} key={idx}>
+                    {genre.name} |&nbsp;
+                  </Typography>
+                );
+              }
             })}
           </Box>
 
@@ -125,11 +131,19 @@ export default function DetailView(props) {
           </Typography>
           <Box sx={{ mb: "10px" }}>
             {tags.map((tag, idx) => {
-              return (
-                <Typography sx={sideItem} key={idx}>
-                  {tag.name} |&nbsp;
-                </Typography>
-              );
+              if (idx == tags.length - 1) {
+                return (
+                  <Typography sx={sideItem} key={idx}>
+                    {tag.name}
+                  </Typography>
+                );
+              } else {
+                return (
+                  <Typography sx={sideItem} key={idx}>
+                    {tag.name} |&nbsp;
+                  </Typography>
+                );
+              }
             })}
           </Box>
 
@@ -160,7 +174,7 @@ export default function DetailView(props) {
           {/* Rating */}
           <Box
             component="img"
-            sx={{ width: "50px" }}
+            sx={{ width: "50px", mb: "10px" }}
             alt="rating"
             src={`./assets/esrb_${rating.slug}.png`}
           />
@@ -168,18 +182,22 @@ export default function DetailView(props) {
           {auth.currentUser === null ? (
             <div></div>
           ) : (
-            <DetailViewButtons gameId={gameId} />
-          )}
-          {auth.currentUser === null ? (
-            <div></div>
-          ) : (
-            <ReviewButtons
-              gameId={gameId}
-              setModal={setModal}
-              closeModal={closeModal}
-              openModal={openModal}
-              getReviews={getReviews}
-            />
+            <div>
+              <DetailViewButtons gameId={gameId} />
+              <Top5Button
+                gameId={gameId}
+                setModal={setModal}
+                closeModal={closeModal}
+                openModal={openModal}
+              />
+              <ReviewButtons
+                gameId={gameId}
+                setModal={setModal}
+                closeModal={closeModal}
+                openModal={openModal}
+                getReviews={getReviews}
+              />
+            </div>
           )}
         </Box>
         <Box sx={detailRight}>
@@ -201,30 +219,49 @@ export default function DetailView(props) {
             </Box>
           </Box>
           <Box sx={articleBox}>
-            <Box sx={devContainer}>
-              <Box sx={{ mr: "20px" }}>
-                <Typography sx={articleDevPub}>Publisher(s)</Typography>
-                {publishers.map((publisher, idx) => (
-                  <Typography key={idx} sx={listItem}>
-                    {publisher.name}
-                  </Typography>
-                ))}
-              </Box>
-              <Box>
-                <Typography sx={articleDevPub}>Developer(s)</Typography>
-                {developers.map((developer, idx) => (
-                  <Typography key={idx} sx={listItem}>
-                    {developer.name}
-                  </Typography>
-                ))}
-              </Box>
-            </Box>
             <Box
               component="img"
               sx={articleImg}
               alt="header"
               src={apiReturn.background_image_additional}
             />
+            <Typography sx={articleDevPub}>Publisher(s)</Typography>
+            <ListItem sx={list}>
+              {publishers.map((publisher, idx) => {
+                if (idx == publishers.length - 1) {
+                  return (
+                    <Typography key={idx} sx={listItem}>
+                      {publisher.name}
+                    </Typography>
+                  );
+                } else {
+                  return (
+                    <Typography key={idx} sx={listItem}>
+                      {publisher.name},&nbsp;
+                    </Typography>
+                  );
+                }
+              })}
+            </ListItem>
+
+            <Typography sx={articleDevPub}>Developer(s)</Typography>
+            <ListItem sx={list}>
+              {developers.map((developer, idx) => {
+                if (idx == developers.length - 1) {
+                  return (
+                    <Typography key={idx} sx={listItem}>
+                      {developer.name}
+                    </Typography>
+                  );
+                } else {
+                  return (
+                    <Typography key={idx} sx={listItem}>
+                      {developer.name},&nbsp;
+                    </Typography>
+                  );
+                }
+              })}
+            </ListItem>
 
             <Box sx={paragraphStyle}>{description}</Box>
           </Box>
@@ -242,6 +279,7 @@ const headerImage = {
   backgroundPosition: "top",
   objectPosition: "0 12%",
   filter: "brightness(50%)",
+  position: "relative",
 };
 
 const headerTitle = {
@@ -299,10 +337,7 @@ const barText = {
 
 const articleBox = {
   padding: "30px",
-};
-
-const devContainer = {
-  display: "flex",
+  pt: "0px",
 };
 
 const articleDevPub = {
@@ -310,15 +345,18 @@ const articleDevPub = {
   fontSize: "19px",
 };
 
-const listItem = {
+const list = {
   color: "#fff",
-  display: "list-item",
   ml: "25px",
   fontSize: "15px",
+  display: "list-item"
+};
+
+const listItem = {
+  display:"inline-block",
 };
 
 const articleImg = {
-  height: "300px",
   width: "100%",
   objectFit: "cover",
   objectPosition: "0 50%",

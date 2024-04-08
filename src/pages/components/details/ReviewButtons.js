@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, ButtonBase } from "@mui/material";
+import { Box, ButtonBase, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -7,7 +7,6 @@ import {
   editButtonStyle,
   buttonContainer,
   addButtonStyle,
-  removeButtonStyle,
 } from "./ButtonStyles";
 import { auth, db } from "../../../credentials";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -93,7 +92,7 @@ export default function ReviewButtons(props) {
   );
 
   const editReviewBtn = (
-    <div>
+    <Tooltip title="Edit" placement="right">
       <ButtonBase
         sx={editButtonStyle}
         onClick={() => {
@@ -111,15 +110,15 @@ export default function ReviewButtons(props) {
       >
         Edit Review <EditIcon fontSize="small" />
       </ButtonBase>
-    </div>
+    </Tooltip>
   );
 
   const removeReviewBtn = (
-    <div>
+    <Tooltip title="Delete" placement="right">
       <ButtonBase sx={removeReviewStyle} onClick={removeReview}>
         Delete Review <RemoveIcon fontSize="small" />
       </ButtonBase>
-    </div>
+    </Tooltip>
   );
 
   const [toggleAddEdit, setToggleAddEdit] = useState(addReviewBtn);
@@ -138,8 +137,12 @@ const removeReviewStyle = {
   border: "1px solid #fff",
   borderRadius: "10px",
   mb: "10px",
-  backgroundColor: "red",
+  backgroundColor: "#cc4b4b",
+  width: "150px",
   "&:hover": {
     filter: "brightness(80%)",
   },
+  "svg": {
+    marginLeft: "5px"
+  }
 };

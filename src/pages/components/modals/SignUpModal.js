@@ -10,6 +10,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { Box, Typography, InputBase, ButtonBase } from "@mui/material";
+import { modalBtn, modalInput, modalStyle } from "./ModalStyles";
 
 export default function SignUpModal(props) {
   const [email, setEmail] = useState("");
@@ -125,37 +126,3 @@ export default function SignUpModal(props) {
     </Box>
   );
 }
-
-const modalStyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 500,
-  height: "40%",
-  bgcolor: "#40434e",
-  display: "flex",
-  flexDirection: "column",
-  padding: "10px",
-  borderRadius: "10px",
-  textAlign: "center",
-  alignItems: "center",
-  justifyContent: "space-evenly",
-};
-
-const modalInput = {
-  width: "80%",
-  border: "1px solid #fff",
-  borderRadius: "10px",
-  padding: "5px",
-  pl: "10px",
-  color: "#fff",
-};
-
-const modalBtn = {
-  width: "50%",
-  padding: "10px",
-  borderRadius: "10px",
-  color: "#fff",
-  bgcolor: "#2e7f2e",
-};
